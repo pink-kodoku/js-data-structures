@@ -15,7 +15,7 @@ class Node<T> {
 }
 
 export class BinaryTree<T> {
-  private root: Node<T> | null = null;
+  private root: NodeOrNull<T> = null;
 
   private isEmpty(): boolean {
     return this.root == null;
