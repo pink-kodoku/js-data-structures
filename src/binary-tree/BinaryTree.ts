@@ -1,3 +1,7 @@
+import {Errors} from "../errors/errors.enum";
+
+type NodeOrNull<T> = Node<T> | null;
+
 class Node<T> {
   public value: T;
   public left: Node<T> | null = null;
@@ -72,7 +76,7 @@ export class BinaryTree<T> {
     return items;
   }
 
-  private preOrderTraverseInternal(node: Node<T> | null, items: T[]) {
+  private preOrderTraverseInternal(node: NodeOrNull<T>, items: T[]) {
     if (node == null) {
       return;
     }
@@ -89,7 +93,7 @@ export class BinaryTree<T> {
     return items;
   }
 
-  private inOrderTraverseInternal(node: Node<T> | null, items: T[]) {
+  private inOrderTraverseInternal(node: NodeOrNull<T>, items: T[]) {
     if (node == null) {
       return;
     }
@@ -106,7 +110,7 @@ export class BinaryTree<T> {
     return items;
   }
 
-  private postOrderTraverseInternal(node: Node<T> | null, items: T[]) {
+  private postOrderTraverseInternal(node: NodeOrNull<T>, items: T[]) {
     if (node == null) {
       return;
     }
@@ -116,5 +120,83 @@ export class BinaryTree<T> {
     items.push(node.value)
   }
 
+  public isLeaf(node: Node<T>): boolean {
+    return node.left == null && node.right == null;
+  }
+
+  public height(): number {
+    return this.heightInternal(this.root);
+  }
+
+  private heightInternal(node: NodeOrNull<T>): number {
+    if (node == null) {
+      return -1;
+    }
+    if (this.isLeaf(node)) {
+      return 0;
+    }
+
+    return 1 + Math.max(this.heightInternal(node.left), this.heightInternal(node.right))
+  }
+
+  public minValue(): T {
+    if (this.isEmpty()) {
+      throw new Error(Errors.IllegalArgumentException)
+    }
+    return this.minValueInternal(this.root!);
+
+  }
+
+  private minValueInternal(root: Node<T>): T {
+    if (root.left == null) return root.value;
+    return this.minValueInternal(root.left);
+  }
+
+  public equals(other: BinaryTree<T>) {
+    if (other == null) {
+      return false;
+    }
+
+    return this.equalsInternal(this.root, other.root);
+  }
+
+  private equalsInternal(first: NodeOrNull<T>, second: NodeOrNull<T>): boolean {
+    if (first == null && second == null) return true;
+    if (first != null && second != null) {
+      return first.value === second.value
+        && this.equalsInternal(first.left, second.left)
+        && this.equalsInternal(first.right, second.right)
+    }
+    return false;
+  }
+
+  public getNodesAtDistance(distance: number) {
+    const nodes: T[] = [];
+
+    return this.getNodesAtDistanceInternal(this.root, distance, nodes);
+  }
+
+  private getNodesAtDistanceInternal(root: NodeOrNull<T>, distance: number, list: T[]) {
+    if (root == null) return list;
+    if (distance == 0) {
+      list.push(root.value)
+    }
+
+    this.getNodesAtDistanceInternal(root.left, distance - 1, list);
+    this.getNodesAtDistanceInternal(root.right, distance -1, list);
+
+    return list;
+  }
+
+  public traverseLevelOrder() {
+    const items: T[] = []
+    for (let i = 0; i <= this.height(); i++) {
+      for (let value of this.getNodesAtDistance(i)) {
+        items.push(value);
+      }
+    }
+
+    return items;
+  }
 
 }
